@@ -13,3 +13,8 @@ More CAT projects (e.g., multidimensional CAT, simulation studies) will be added
 
 **Important:**  
 No test data is provided in this repository. All analyses are demonstrated using code only, without any real or simulated examinee responses, to comply with confidentiality requirements typical of high-stakes assessments.
+
+### Contact
+**Author:** Meltem Yumsek Akbaba  
+Measurement Scientist  
+Specializing in educational measurement and language assessments
