@@ -1,0 +1,26 @@
+### Psychometric Approach
+
+### Model
+Rasch model:
+- a parameters fixed to 1
+- d = –b transformation applied
+- Item parameters not estimated, only used from pool
+
+This projects uses a Rasch model (i.e., commonly used for language assessments)  for θ estimation. In the Rasch specification, all item discrimination parameters (a parameters) are fixed to 1, which ensures that item responses depend only on item difficulty and examinee ability. This choice provides a stable and interpretable measurement scale and avoids overfitting in sparse data conditions.
+Additionaly, mirt package is used for θ estimation which requires transforming b to intercept d parameter.
+Because the data available for each examinee is very sparse, item-level parameter estimation is not feasible. Instead, the estimation process relies on pre-calibrated pool parameters.
+These item difficulty parameters have already been placed on a common scale through prior calibration, enabling consistent θ estimation across different subsets of items without re-estimating item parameters for each run.
+
+Ability (Theta) Estimation
+Warm’s Maximum Likelihood Estimation (WLE) is used to estimate θ. WLE was selected for the following reasons:
+•	Reduced bias: WLE is well-known for producing nearly unbiased theta estimates, especially within shorter tests, compared to standard Maximum Likelihood Estimation (MLE).
+•	Defined for extreme scores: Unlike MLE, Warm’s estimator yields finite theta estimates even when an examinee answers all items correctly or all items incorrectly.
+•	Robustness in CAT and modular testing: WLE is a common choice in Computerized Adaptive Testing (CAT) and other adaptive frameworks because of its stability across varying test lengths.
+•	Appropriate for skill-level subscores: When ability is estimated separately for each skill/domain, the test becomes a subset of items for that skill. These subsets typically contain smaller number of items. In this case only 10–16 items for each skill. Therefore WLE especially  is suitable due to its favorable performance on short assessments.
+
+An alternative method might be running a multi dimensional model which will be showcased in another project in my CAT repo.
+
+
+
+
+
