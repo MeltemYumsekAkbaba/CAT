@@ -4,9 +4,9 @@ This document explains assumptions, core computations, and implementation detail
 
 ### Key assumptions
 
-- Item discrimination (`a`) is set to **1** for every item (the script stores `a = 1` in the item pool). If you have per-item discriminations, replace that assignment with your `a` column.
+- Item discrimination (`a`) is set to **1** for every item. If you have per-item discriminations, replace that assignment with your `a` column.
 - Item difficulties (`b`) come from a trusted item pool and are numeric.
-- Person θs are pre-estimated outside the script (the script *does not* re-estimate thetas). The recommended estimator for CAT contexts is Warm’s Weighted Maximum Likelihood (WML); the `wide` file in this repository is expected to contain such outputs.
+- Person θ values are pre-estimated outside the script (the script *does not* re-estimate thetas). The recommended estimator for CAT contexts is Warm’s Weighted Maximum Likelihood (WML); the `wide` file in this repository is expected to contain such outputs.
 - Timestamps (if available) are parsed with `lubridate::parse_date_time` into UTC; if parsing fails, timestamps default to `NA`.
 
 ## Core computations (with formulas)
@@ -21,7 +21,7 @@ This document explains assumptions, core computations, and implementation detail
 Computed per scale as:
 
 $$
-\text{marginal reliability} \;=\; 1 \;-\; \frac{\mathrm{mean}\big(\mathrm{SE}^2\big)}{\mathrm{var}(\theta)}
+\text{marginal reliability} = 1 - \frac{\mathrm{mean}(SE^2)}{\mathrm{var}(\theta)}
 $$
 
 Where the mean and variance are computed across examinees with non-missing values.
@@ -30,44 +30,8 @@ Where the mean and variance are computed across examinees with non-missing value
 
 - For each session, compute mean administered `b` (mean of `raw_difficulty` for items administered in that session).
 - Correlate person $\theta$ (`f1`) with mean administered `b`.
-- Fit a linear model `mean_b_admin ~ f1` and report slope; produce scatterplot + regression line.
+- Fit a linear model `mean_b_admin ~ f1` and report the slope; produce scatterplot + regression line.
 
-### 4. Item information (2PL with $a$ fixed to 1)
+### 4. Item information (2PL with $a = 1$)
 
-- Probability under the logistic 2PL (with $a$ possibly fixed):
-
-$$
-P(\theta) \;=\; \frac{1}{1 + e^{-a(\theta - b)}}
-$$
-
-- Item information at a given $\theta$:
-
-$$
-I(\theta) \;=\; a^{2} \cdot P(\theta) \cdot \big(1 - P(\theta)\big)
-$$
-
-For each session the script computes the average information of the administered items evaluated at the final $\theta$, then compares that average with the maximum information available in the pool at that $\theta$. The ratio `avg_admin_info / max_pool_info` is saved per session.
-
-### 5. Exposure and Gini
-
-- Item exposure rates are computed as:
-
-  - `exposure_rate_attempts = n_administered / n_distinct(session_id)`
-  - `exposure_rate_examinees = unique_examinees / n_distinct(user_id)`
-
-- Gini is computed using `DescTools::Gini()` on exposure rates.
-
-### 6. Efficiency summaries
-
-- Final $\theta$, final SE, number of items administered, and time taken per session (difference between last and first `answered_at_parsed`) are computed and saved.
-
-### 7. Growth / repeated attempts
-
-- For users with multiple attempts the script computes `first_theta`, `last_theta`, and `delta = last - first` and produces a spaghetti plot for a sample of users.
-
-## Common problems & debugging tips
-
-- **Missing theta/SE columns**: The script warns if required theta/SE columns are missing. Ensure `f1` and `se_f1` exist in the wide file.
-- **Items with a single response category**: If items appear with only one response (all 0s or 1s), functions that assume variance may fail. Remove such items or filter them out before running diagnostics.
-- **Timestamps not parsed**: If `answered_at` cannot be parsed, time-based diagnostics will be `NA`. Standardize timestamps to an ISO format or common formats recognized by `lubridate::parse_date_time`.
-- **Pool-item mismatch**: If the wide file contains response columns that aren’t present in the `item_pool` table, targeting and information calculations will be incomplete. Reconcile item IDs between wide and long files.
+**Probability u**
