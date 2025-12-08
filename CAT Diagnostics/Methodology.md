@@ -7,41 +7,47 @@ This document explains assumptions, core computations, and implementation detail
 
 * Item discrimination (`a`) is set to **1** for every item (script stores `a = 1` in `item pool`). If you have per-item discriminations, replace that assignment with your `a` column.
 * Item difficulties (`b`) come from a trusted item pool and are numeric.
-* Person thetas are pre-estimated outside the script (the script *does not* re-estimate thetas). The recommended estimator for CAT contexts is Warm’s Weighted Maximum Likelihood (WML); the `wide` file in this repository is expected to contain such outputs.
+* Person θs are pre-estimated outside the script (the script *does not* re-estimate thetas). The recommended estimator for CAT contexts is Warm’s Weighted Maximum Likelihood (WML); the `wide` file in this repository is expected to contain such outputs.
 * Timestamps (if available) are parsed with `lubridate::parse_date_time` into UTC; if parsing fails, timestamps default to `NA`.
 
 ## Core computations (with formulas)
 
 ### 1. Conditional Standard Error of Measurement (CSEM)
 
-* Plotted as `SE` versus `theta` (loess smooth).
+* Plotted as `SE` versus `θ` (loess smooth).
 * Uses `se_f1` reported in the wide file; for skills uses their respective SE columns.
 
 ### 2. Marginal reliability
 
 Computed per scale as:
 
-[ \text{marginal reliability} = 1 - \frac{mean(SE^2)}{var(\theta)} ]
+\( \text{marginal reliability} = 1 - \frac{\text{mean}(SE^2)}{\text{var}(\theta)} \)
 
 Where the mean and variance are computed across examinees with non-missing values.
 
 ### 3. Targeting
 
 * For each session, compute mean administered `b` (mean of `raw_difficulty` for items administered in that session).
-* Correlate person theta (`f1`) with mean administered `b`.
+* Correlate person θ (`f1`) with mean administered `b`.
 * Fit a linear model `mean_b_admin ~ f1` and report slope; produce scatterplot + regression line.
 
 ### 4. Item information (2PL with a fixed to 1)
 
 * Probability under logistic 2PL with a fixed `a=1`:
 
-[ P(\theta) = \frac{1}{1 + e^{-a(\theta - b)}} ]
+\[
+P(\theta) = \frac{1}{1 + e^{-a(\theta - b)}}
+\]
 
-* Item information at a theta:
 
-[ I(\theta) = a^2 \cdot P(\theta) \cdot (1 - P(\theta)) ]
+* Item information at a θ:
 
-For each session the script computes the average information of the administered items evaluated at the final theta, then compares that average with the maximum information available in the pool at that theta. The ratio `avg_admin_info / max_pool_info` is saved per session.
+\[
+I(\theta) = a^2 \cdot P(\theta) \cdot (1 - P(\theta))
+\]
+
+
+For each session the script computes the average information of the administered items evaluated at the final θ, then compares that average with the maximum information available in the pool at that theta. The ratio `avg_admin_info / max_pool_info` is saved per session.
 
 ### 5. Exposure and Gini
 
@@ -53,11 +59,11 @@ For each session the script computes the average information of the administered
 
 ### 6. Efficiency summaries
 
-* Final theta, final SE, number of items administered, and time taken per session (difference between last and first `answered_at_parsed`) are computed and saved.
+* Final θ, final SE, number of items administered, and time taken per session (difference between last and first `answered_at_parsed`) are computed and saved.
 
 ### 7. Growth / repeated attempts
 
-* For users with multiple attempts the script computes `first_theta`, `last_theta`, and `delta = last - first` and produces a spaghetti plot for a sample of users.
+* For users with multiple attempts the script computes `first_θ`, `last_θ`, and `delta = last - first` and produces a spaghetti plot for a sample of users.
 
 
 ## Common problems & debugging tips
