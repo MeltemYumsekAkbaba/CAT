@@ -34,4 +34,40 @@ Where the mean and variance are computed across examinees with non-missing value
 
 ### 4. Item information (2PL with $a = 1$)
 
-**Probability u**
+**Probability under the logistic 2PL:**
+
+$$
+P(\theta) = \frac{1}{1 + e^{-a(\theta - b)}}
+$$
+
+**Item information function:**
+
+$$
+I(\theta) = a^{2} \cdot P(\theta) \cdot (1 - P(\theta))
+$$
+
+For each session, the script computes the average information of the administered items evaluated at the final $\theta$, then compares that average with the maximum information available in the pool at that same $\theta$.  
+The ratio `avg_admin_info / max_pool_info` is saved per session.
+
+### 5. Exposure and Gini
+
+- Item exposure rates are computed as:
+  - `exposure_rate_attempts = n_administered / n_distinct(session_id)`
+  - `exposure_rate_examinees = unique_examinees / n_distinct(user_id)`
+- Gini is computed using `DescTools::Gini()` on exposure rates.
+
+### 6. Efficiency summaries
+
+- Final $\theta$, final SE, number of items administered, and time taken per session (difference between last and first `answered_at_parsed`) are computed and saved.
+
+### 7. Growth / repeated attempts
+
+- For users with multiple attempts, the script computes `first_theta`, `last_theta`, and  
+  `delta = last_theta - first_theta`, and produces a spaghetti plot for a sample of users.
+
+## Common problems & debugging tips
+
+- **Missing theta/SE columns**: Ensure `f1` and `se_f1` exist in the wide file.
+- **Items with a single response category**: If an item has only 0s or only 1s, variance-based functions may fail. Remove such items before running diagnostics.
+- **Timestamps not parsed**: If `answered_at` cannot be parsed, time-based diagnostics will be `NA`.
+- **Pool–item mismatch**: If response columns in the wide file don't exist in the item pool, targeting and information calculations will be incomplete. Reconcile item IDs between datasets.
